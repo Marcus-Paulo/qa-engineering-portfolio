@@ -17,7 +17,7 @@ Centralizar o gerenciamento de pessoas e suas permissões de acesso, oferecendo 
 | Perfil | Descrição |
 |---|---|
 | Administrador | Possui acesso completo a todas as funcionalidades do sistema. |
-| Operador | Possui acesso restrito: pode consultar pessoas, credenciais e eventos; cadastrar e editar pessoas. Não pode alterar permissões de acesso nem gerenciar usuários do sistema. |
+| Operador | Pode consultar pessoas, credenciais e eventos; cadastrar e editar pessoas. Não pode gerenciar credenciais, alterar permissões de acesso nem gerenciar usuários do sistema. |
 
 **Premissa do estudo:** a autenticação de usuários da aplicação será considerada existente. O escopo inicial testa as funcionalidades após o usuário estar autenticado.
 
@@ -44,7 +44,7 @@ Centralizar o gerenciamento de pessoas e suas permissões de acesso, oferecendo 
 
 ### RF-01 — Cadastro de pessoas
 
-O sistema deve permitir que um usuário com permissão cadastre uma pessoa informando nome completo, CPF, e-mail e status do cadastro.
+O sistema deve permitir que Administradores e Operadores cadastrem uma pessoa informando nome completo, CPF, e-mail e status do cadastro.
 
 **Critérios de aceitação**
 - Deve ser possível salvar um cadastro com todos os campos obrigatórios válidos.
@@ -54,7 +54,7 @@ O sistema deve permitir que um usuário com permissão cadastre uma pessoa infor
 
 ### RF-02 — Consulta de pessoas
 
-O sistema deve permitir consultar pessoas cadastradas por nome ou CPF.
+O sistema deve permitir que Administradores e Operadores consultem pessoas cadastradas por nome ou CPF.
 
 **Critérios de aceitação**
 - A consulta deve retornar registros compatíveis com o filtro informado.
@@ -63,7 +63,7 @@ O sistema deve permitir consultar pessoas cadastradas por nome ou CPF.
 
 ### RF-03 — Edição de pessoas
 
-O sistema deve permitir alterar os dados editáveis de uma pessoa cadastrada.
+O sistema deve permitir que Administradores e Operadores alterem os dados editáveis de uma pessoa cadastrada.
 
 **Critérios de aceitação**
 - As alterações devem ser persistidas após confirmação.
@@ -73,33 +73,36 @@ O sistema deve permitir alterar os dados editáveis de uma pessoa cadastrada.
 
 ### RF-04 — Associação de credencial
 
-O sistema deve permitir associar uma credencial a uma pessoa cadastrada.
+O sistema deve permitir que somente Administradores associem uma credencial a uma pessoa cadastrada.
 
 **Critérios de aceitação**
-- Somente pessoas existentes e ativas podem receber uma nova credencial.
+- Somente pessoas existentes e ativas podem receber uma credencial.
+- Cada pessoa pode possuir somente uma credencial associada.
 - Uma credencial já associada a outra pessoa não pode ser reutilizada.
 - A associação deve ficar visível no cadastro da pessoa.
 - O sistema deve informar o resultado da operação.
+- Operadores não podem associar credenciais.
 
-### RF-05 — Bloqueio e desbloqueio de credencial
+### RF-05 — Bloqueio, desbloqueio e reativação de credencial
 
-O sistema deve permitir bloquear e desbloquear uma credencial associada a uma pessoa.
+O sistema deve permitir que somente Administradores bloqueiem, desbloqueiem ou reativem uma credencial, respeitando as condições de validade.
 
 **Critérios de aceitação**
-- Uma credencial bloqueada não deve autorizar acesso.
-- Uma credencial desbloqueada pode voltar a ser utilizada, desde que as demais condições de acesso sejam atendidas.
+- Uma credencial bloqueada ou inativada não deve autorizar acesso.
+- Uma credencial desbloqueada pode voltar a ser utilizada, desde que esteja ativa, dentro do prazo de validade e as demais condições de acesso sejam atendidas.
 - O sistema deve registrar a alteração de status.
-- Usuários sem permissão não devem realizar a operação.
+- Operadores não podem bloquear, desbloquear ou reativar credenciais.
 
 ### RF-06 — Configuração de permissões por área
 
-O sistema deve permitir configurar as áreas às quais uma pessoa possui autorização de acesso.
+O sistema deve permitir que somente Administradores configurem as áreas às quais uma pessoa possui autorização de acesso.
 
 **Critérios de aceitação**
 - Deve ser possível conceder acesso a uma ou mais áreas disponíveis.
 - Deve ser possível remover uma autorização anteriormente concedida.
 - A alteração deve ser considerada nas próximas tentativas de acesso.
 - Pessoas inativas não devem obter autorização, mesmo que possuam áreas associadas.
+- Operadores não podem alterar permissões por área.
 
 ### RF-07 — Registro de evento de acesso
 
@@ -110,10 +113,11 @@ O sistema deve registrar uma tentativa de acesso realizada com uma credencial.
 - O resultado deve indicar acesso autorizado ou negado.
 - O evento deve ser registrado mesmo quando o acesso for negado.
 - Uma credencial inexistente ou não associada deve gerar tentativa negada.
+- Após uma tentativa, a mesma credencial deve respeitar um intervalo de 10 segundos antes de uma nova tentativa.
 
 ### RF-08 — Consulta de eventos de acesso
 
-O sistema deve permitir consultar o histórico de eventos de acesso.
+O sistema deve permitir que Administradores e Operadores consultem o histórico de eventos de acesso.
 
 **Critérios de aceitação**
 - Deve ser possível filtrar eventos por pessoa, área, período e resultado.
@@ -126,21 +130,21 @@ O sistema deve permitir consultar o histórico de eventos de acesso.
 | ID | Regra de negócio |
 |---|---|
 | RN-01 | O CPF deve ser único entre os cadastros de pessoas. |
-| RN-02 | Somente pessoas com status ativo podem receber novas credenciais. |
-| RN-03 | Cada pessoa pode possuir somente uma credencial ativa associada, e uma credencial não pode estar associada a mais de uma pessoa. |
+| RN-02 | Somente pessoas com status ativo podem receber uma credencial. |
+| RN-03 | Cada pessoa pode possuir somente uma credencial associada. Uma credencial não pode estar associada a mais de uma pessoa. |
 | RN-04 | Credenciais bloqueadas ou inativadas não autorizam tentativas de acesso. |
 | RN-05 | Ao inativar uma pessoa, sua credencial deve ser inativada automaticamente. Pessoas inativas não podem ter acesso autorizado, independentemente das permissões por área. |
-| RN-06 | O acesso somente será autorizado quando a pessoa estiver ativa, a credencial estiver dentro do prazo de validade e desbloqueada e houver permissão para a área solicitada. |
-| RN-07 | Toda tentativa de acesso deve gerar um evento, seja ela autorizada ou negada. |
+| RN-06 | O acesso somente será autorizado quando a pessoa estiver ativa, a credencial estiver ativa, desbloqueada e dentro do prazo de validade, e houver permissão para a área solicitada. |
+| RN-07 | Toda tentativa de acesso deve gerar um evento, seja ela autorizada ou negada, observadas as regras de intervalo entre tentativas. |
 | RN-08 | A consulta de eventos deve respeitar as permissões do perfil do usuário autenticado. |
-| RN-09 | O perfil Operador não pode alterar permissões de acesso nem gerenciar usuários do sistema. |
-| RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |\n| RN-11 | Uma credencial possui data de expiração; ao atingir a data de expiração, deve ser inativada automaticamente e não deve autorizar acesso. |\n| RN-12 | Após uma tentativa de acesso, deve ser respeitado um intervalo de 10 segundos antes de uma nova tentativa, conforme o escopo de controle de tentativas a ser definido. |
+| RN-09 | O perfil Operador não pode gerenciar credenciais, alterar permissões de acesso nem gerenciar usuários do sistema. |
+| RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |
+| RN-11 | A credencial possui uma data de expiração e permanece válida até às 23h59 dessa data. Após esse limite, deve ser inativada automaticamente e não deve autorizar acesso. |
+| RN-12 | Após uma tentativa de acesso, a mesma credencial deve aguardar 10 segundos antes de realizar uma nova tentativa. |
 
 ## 5. Matriz de decisão inicial — autorização de acesso
 
-A autorização depende da combinação das condições abaixo:
-
-| Pessoa ativa | Credencial válida e desbloqueada | Permissão para a área | Resultado esperado |
+| Pessoa ativa | Credencial ativa, desbloqueada e válida | Permissão para a área | Resultado esperado |
 |---|---|---|---|
 | Sim | Sim | Sim | Autorizado |
 | Não | Sim | Sim | Negado |
@@ -148,29 +152,30 @@ A autorização depende da combinação das condições abaixo:
 | Sim | Sim | Não | Negado |
 | Não | Não | Não | Negado |
 
-A matriz representa as regras definidas para este estudo de caso. Cenários adicionais, como credencial expirada ou dispositivo indisponível, poderão ser incluídos em uma evolução futura do escopo.
+A matriz representa as regras definidas para este estudo de caso. Cenários adicionais, como dispositivo indisponível, poderão ser incluídos em uma evolução futura do escopo.
 
 ## 6. Requisitos não funcionais iniciais
 
 | ID | Categoria | Requisito |
 |---|---|---|
 | RNF-01 | Segurança | O sistema deve restringir operações conforme o perfil e as permissões do usuário autenticado. |
-| RNF-02 | Integridade | O sistema deve impedir associação duplicada da mesma credencial a pessoas diferentes. |
+| RNF-02 | Integridade | O sistema deve impedir associação duplicada de credenciais a pessoas diferentes e mais de uma credencial associada à mesma pessoa. |
 | RNF-03 | Rastreabilidade | As tentativas de acesso devem permanecer consultáveis no histórico de eventos. |
 | RNF-04 | Privacidade | Dados pessoais exibidos e armazenados devem ser tratados de forma compatível com a finalidade do sistema. |
 | RNF-05 | Desempenho | O tempo de resposta esperado deverá ser definido antes dos testes de performance, considerando ambiente e carga de referência. |
 
-## 7. Decisões de negócio complementares
+## 7. Decisões de negócio confirmadas
 
-As respostas recebidas para as dúvidas iniciais foram incorporadas ao escopo:
+As respostas recebidas durante a análise de requisitos foram incorporadas ao escopo:
 
 | Tema | Decisão confirmada | Impacto para QA |
 |---|---|---|
-| Quantidade de credenciais por pessoa | Cada pessoa poderá possuir somente uma credencial. | Testar tentativa de associar uma segunda credencial à mesma pessoa. |
+| Quantidade de credenciais por pessoa | Cada pessoa poderá possuir somente uma credencial associada. | Testar tentativa de associar uma segunda credencial à mesma pessoa. |
 | Inativação de pessoa | A credencial será inativada automaticamente quando a pessoa for inativada. | Validar a mudança automática de status e a negação de acesso posterior. |
-| Expiração de credencial | A credencial será inativada automaticamente quando atingir sua data de expiração. | Testar a credencial antes, no momento e depois da expiração, incluindo a mudança automática de status. |
-| Intervalo entre tentativas | Aguardar 10 segundos antes de permitir uma nova tentativa. | Testar nova tentativa antes de completar 10 segundos e após o intervalo. O escopo de aplicação do intervalo ainda precisa ser definido. |
-| Perfis de usuário | Existem somente os perfis Administrador e Operador. Administrador possui acesso completo; Operador possui acesso restrito. | Testar permissões positivas e negativas de cada perfil. |
+| Expiração de credencial | A credencial permanece válida até às 23h59 da data informada e depois é inativada automaticamente. | Testar antes, no limite e após a expiração, incluindo a mudança automática de status. |
+| Reativação após expiração | O Administrador poderá reativar uma credencial expirada. | Testar a permissão do Administrador e a restrição ao Operador. |
+| Intervalo entre tentativas | A mesma credencial deve aguardar 10 segundos após uma tentativa antes de tentar novamente. | Testar uma nova tentativa antes de completar 10 segundos e após o intervalo. |
+| Perfis de usuário | Existem somente Administrador e Operador. Administrador possui acesso completo; Operador possui acesso restrito. | Testar permissões positivas e negativas de cada perfil. |
 
 ### 7.1 Permissões por perfil
 
@@ -181,41 +186,42 @@ As respostas recebidas para as dúvidas iniciais foram incorporadas ao escopo:
 | Editar pessoas | Permitido | Permitido |
 | Consultar credenciais | Permitido | Permitido |
 | Consultar eventos de acesso | Permitido | Permitido |
-| Gerenciar credenciais (associar, bloquear, desbloquear) | Permitido | Não permitido nesta definição |
+| Associar credenciais | Permitido | Não permitido |
+| Bloquear credenciais | Permitido | Não permitido |
+| Desbloquear credenciais | Permitido | Não permitido |
+| Reativar credenciais | Permitido | Não permitido |
 | Configurar permissões por área | Permitido | Não permitido |
 | Gerenciar usuários do sistema | Permitido | Não permitido |
 
-A matriz acima formaliza a sugestão aprovada para o perfil Operador. O Administrador possui acesso completo, inclusive às funcionalidades não listadas individualmente.
+O Administrador possui acesso completo ao sistema, inclusive às funcionalidades não listadas individualmente.
 
 ### 7.2 Regras adicionais derivadas das decisões
 
 - Uma pessoa não pode ter mais de uma credencial associada.
 - A inativação da pessoa deve inativar automaticamente sua credencial.
-- Ao atingir a data de expiração, a credencial deve ser inativada automaticamente.
-- Deve ser respeitado um intervalo de 10 segundos entre tentativas, conforme o escopo de aplicação que será definido.
+- A credencial permanece válida até às 23h59 da data de expiração e deve ser inativada automaticamente após esse limite.
+- O Administrador pode reativar credenciais expiradas; o Operador não possui essa permissão.
+- Após uma tentativa de acesso, a mesma credencial deve respeitar 10 segundos de intervalo antes de nova tentativa.
 - O Administrador possui acesso completo ao sistema.
-- O Operador pode consultar pessoas, credenciais e eventos, além de cadastrar e editar pessoas. Não pode gerenciar credenciais, alterar permissões por área ou gerenciar usuários.
-
-### 7.3 Pontos que ainda precisam de definição
-
-1. O intervalo de 10 segundos é aplicado por credencial, por pessoa, por dispositivo/leitor ou por área? Uma tentativa com outra credencial no mesmo leitor também deve aguardar?
-2. A credencial expira no início da data informada ou permanece válida até o final desse dia? O requisito deve considerar data e hora ou somente data?
-3. Após a inativação automática por expiração, a credencial pode ser reativada pelo Administrador ou deve ser substituída por uma nova?
-4. O perfil Operador pode bloquear/desbloquear credenciais? Pela sugestão aprovada, essas ações ficam restritas ao Administrador; confirmar se essa interpretação está correta.
+- O Operador pode consultar pessoas, credenciais e eventos, além de cadastrar e editar pessoas. Não pode associar, bloquear, desbloquear ou reativar credenciais, alterar permissões por área ou gerenciar usuários.
 
 ## 8. Pontos em aberto e decisões necessárias
 
-Os pontos abaixo não foram especificados e precisam ser definidos antes de considerar os requisitos completos:
+Os pontos abaixo ainda não foram especificados e não devem ser tratados como regras confirmadas:
 
-1. Quais campos, além dos listados, são obrigatórios no cadastro de pessoa?
-2. O CPF pode ser alterado após o cadastro?
-3. Quais áreas estarão disponíveis e quem pode cadastrá-las?
-4. Qual fuso horário deve ser utilizado na gravação e exibição dos eventos?
-5. Qual o volume esperado de pessoas, credenciais e eventos?
-6. Quais campos pessoais devem ser mascarados?
-7. Quais operações devem ser registradas em auditoria além das tentativas de acesso?
+1. Quando uma credencial expira e é reativada pelo Administrador, a data de expiração deve ser atualizada para uma data futura antes da reativação?
+2. Se uma credencial for inativada ou substituída, a pessoa poderá receber uma nova credencial ou a regra de uma credencial por pessoa impede qualquer associação futura?
+3. O intervalo de 10 segundos deve ser contado a partir do início ou da conclusão do processamento da tentativa? Durante o intervalo, uma nova tentativa deve ser recusada com mensagem específica ou apenas ignorada?
+4. O intervalo de 10 segundos deve ser aplicado também a tentativas negadas?
+5. Quais campos, além dos listados, são obrigatórios no cadastro de pessoa?
+6. O CPF pode ser alterado após o cadastro?
+7. Quais áreas estarão disponíveis e quem pode cadastrá-las?
+8. Qual fuso horário deve ser utilizado na gravação e exibição dos eventos?
+9. Qual o volume esperado de pessoas, credenciais e eventos?
+10. Quais campos pessoais devem ser mascarados?
+11. Quais operações devem ser registradas em auditoria além das tentativas de acesso?
 
-**Tratamento para o portfólio:** os pontos em aberto serão registrados como dúvidas de requisito, e não tratados como regras confirmadas. As decisões adotadas em versões futuras do estudo de caso serão documentadas.
+**Tratamento para o portfólio:** os pontos em aberto serão registrados como dúvidas de requisito, e não tratados como regras confirmadas. As decisões adotadas em versões futuras serão documentadas.
 
 ## 9. Próxima atividade de QA
 
@@ -231,4 +237,7 @@ Com os requisitos e regras iniciais definidos, a próxima entrega será a análi
 
 | Versão | Descrição |
 |---|---|
-| 1.0 | Criação do escopo inicial, requisitos funcionais, critérios de aceitação e regras de negócio para o AccessControl Demo. |\n| 1.1 | Inclusão das decisões sobre quantidade de credenciais, inativação automática, expiração, intervalo de 10 segundos e perfis de acesso. |\n| 1.2 | Detalhamento das permissões de Administrador e Operador e atualização dos pontos ainda pendentes de definição. |
+| 1.0 | Criação do escopo inicial, requisitos funcionais, critérios de aceitação e regras de negócio para o AccessControl Demo. |
+| 1.1 | Inclusão das decisões sobre quantidade de credenciais, inativação automática, expiração, intervalo de 10 segundos e perfis de acesso. |
+| 1.2 | Detalhamento das permissões de Administrador e Operador e atualização dos pontos ainda pendentes de definição. |
+| 1.3 | Confirmação do intervalo de 10 segundos por credencial, validade até 23h59 da data de expiração, reativação pelo Administrador e proibição de gerenciamento de credenciais pelo Operador. |
