@@ -16,9 +16,8 @@ Centralizar o gerenciamento de pessoas e suas permissões de acesso, oferecendo 
 
 | Perfil | Descrição |
 |---|---|
-| Administrador | Gerencia usuários, pessoas, credenciais, permissões e consulta eventos. |
-| Operador | Consulta pessoas e eventos e realiza operações permitidas sobre credenciais. |
-| Consulta | Possui acesso somente à visualização das informações autorizadas. |
+| Administrador | Possui acesso completo a todas as funcionalidades do sistema. |
+| Operador | Possui acesso restrito: pode consultar pessoas, credenciais e eventos; cadastrar e editar pessoas. Não pode alterar permissões de acesso nem gerenciar usuários do sistema. |
 
 **Premissa do estudo:** a autenticação de usuários da aplicação será considerada existente. O escopo inicial testa as funcionalidades após o usuário estar autenticado.
 
@@ -134,8 +133,8 @@ O sistema deve permitir consultar o histórico de eventos de acesso.
 | RN-06 | O acesso somente será autorizado quando a pessoa estiver ativa, a credencial estiver dentro do prazo de validade e desbloqueada e houver permissão para a área solicitada. |
 | RN-07 | Toda tentativa de acesso deve gerar um evento, seja ela autorizada ou negada. |
 | RN-08 | A consulta de eventos deve respeitar as permissões do perfil do usuário autenticado. |
-| RN-09 | Usuários com perfil Consulta não podem criar, editar, bloquear ou desbloquear registros. |
-| RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |\n| RN-11 | Uma credencial possui data de expiração; após essa data, não deve autorizar acesso. |\n| RN-12 | Após uma tentativa de acesso, deve existir um intervalo de espera antes de uma nova tentativa no mesmo contexto de acesso. A duração e as condições desse intervalo ainda precisam ser definidas. |
+| RN-09 | O perfil Operador não pode alterar permissões de acesso nem gerenciar usuários do sistema. |
+| RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |\n| RN-11 | Uma credencial possui data de expiração; ao atingir a data de expiração, deve ser inativada automaticamente e não deve autorizar acesso. |\n| RN-12 | Após uma tentativa de acesso, deve ser respeitado um intervalo de 10 segundos antes de uma nova tentativa, conforme o escopo de controle de tentativas a ser definido. |
 
 ## 5. Matriz de decisão inicial — autorização de acesso
 
@@ -169,26 +168,40 @@ As respostas recebidas para as dúvidas iniciais foram incorporadas ao escopo:
 |---|---|---|
 | Quantidade de credenciais por pessoa | Cada pessoa poderá possuir somente uma credencial. | Testar tentativa de associar uma segunda credencial à mesma pessoa. |
 | Inativação de pessoa | A credencial será inativada automaticamente quando a pessoa for inativada. | Validar a mudança automática de status e a negação de acesso posterior. |
-| Expiração de credencial | Credenciais terão data de expiração. | Testar antes, no momento e depois da expiração. |
-| Tentativas simultâneas | Deve haver um tempo de espera antes de tentar novamente. | Testar tentativas repetidas dentro e após o intervalo; a duração ainda precisa ser especificada. |
-| Perfis de usuário | Administrador terá acesso a todas as funcionalidades; Operador terá acesso mais restrito. | Testar autorização e restrição por funcionalidade; a matriz detalhada de permissões ainda precisa ser definida. |
+| Expiração de credencial | A credencial será inativada automaticamente quando atingir sua data de expiração. | Testar a credencial antes, no momento e depois da expiração, incluindo a mudança automática de status. |
+| Intervalo entre tentativas | Aguardar 10 segundos antes de permitir uma nova tentativa. | Testar nova tentativa antes de completar 10 segundos e após o intervalo. O escopo de aplicação do intervalo ainda precisa ser definido. |
+| Perfis de usuário | Existem somente os perfis Administrador e Operador. Administrador possui acesso completo; Operador possui acesso restrito. | Testar permissões positivas e negativas de cada perfil. |
 
-### 7.1 Regras adicionais derivadas das decisões
+### 7.1 Permissões por perfil
+
+| Funcionalidade | Administrador | Operador |
+|---|---|---|
+| Consultar pessoas | Permitido | Permitido |
+| Cadastrar pessoas | Permitido | Permitido |
+| Editar pessoas | Permitido | Permitido |
+| Consultar credenciais | Permitido | Permitido |
+| Consultar eventos de acesso | Permitido | Permitido |
+| Gerenciar credenciais (associar, bloquear, desbloquear) | Permitido | Não permitido nesta definição |
+| Configurar permissões por área | Permitido | Não permitido |
+| Gerenciar usuários do sistema | Permitido | Não permitido |
+
+A matriz acima formaliza a sugestão aprovada para o perfil Operador. O Administrador possui acesso completo, inclusive às funcionalidades não listadas individualmente.
+
+### 7.2 Regras adicionais derivadas das decisões
 
 - Uma pessoa não pode ter mais de uma credencial associada.
 - A inativação da pessoa deve inativar automaticamente sua credencial.
-- Credencial expirada não deve permitir acesso.
-- Uma nova tentativa de acesso deve respeitar o intervalo de espera configurado.
-- O Administrador possui acesso completo às funcionalidades.
-- O Operador possui acesso limitado às funcionalidades, conforme matriz de permissões a definir.
+- Ao atingir a data de expiração, a credencial deve ser inativada automaticamente.
+- Deve ser respeitado um intervalo de 10 segundos entre tentativas, conforme o escopo de aplicação que será definido.
+- O Administrador possui acesso completo ao sistema.
+- O Operador pode consultar pessoas, credenciais e eventos, além de cadastrar e editar pessoas. Não pode gerenciar credenciais, alterar permissões por área ou gerenciar usuários.
 
-### 7.2 Pontos que ainda precisam de definição
+### 7.3 Pontos que ainda precisam de definição
 
-1. Qual é o intervalo de espera entre tentativas de acesso? O intervalo é aplicado por pessoa, credencial, dispositivo ou área?
-2. A data de expiração inclui o dia inteiro ou a credencial expira exatamente no horário registrado?
-3. O que o sistema deve fazer quando uma credencial é inativada automaticamente: permitir reativação manual ou exigir uma nova credencial?
-4. Quais ações específicas o perfil Operador pode executar? Por exemplo: consultar pessoas, cadastrar pessoas, editar dados, associar credenciais, bloquear credenciais, alterar permissões e consultar eventos.
-5. Existe algum perfil além de Administrador, Operador e Consulta? A definição anterior do perfil Consulta permanece pendente de confirmação.
+1. O intervalo de 10 segundos é aplicado por credencial, por pessoa, por dispositivo/leitor ou por área? Uma tentativa com outra credencial no mesmo leitor também deve aguardar?
+2. A credencial expira no início da data informada ou permanece válida até o final desse dia? O requisito deve considerar data e hora ou somente data?
+3. Após a inativação automática por expiração, a credencial pode ser reativada pelo Administrador ou deve ser substituída por uma nova?
+4. O perfil Operador pode bloquear/desbloquear credenciais? Pela sugestão aprovada, essas ações ficam restritas ao Administrador; confirmar se essa interpretação está correta.
 
 ## 8. Pontos em aberto e decisões necessárias
 
@@ -196,14 +209,11 @@ Os pontos abaixo não foram especificados e precisam ser definidos antes de cons
 
 1. Quais campos, além dos listados, são obrigatórios no cadastro de pessoa?
 2. O CPF pode ser alterado após o cadastro?
-3. Uma pessoa pode possuir mais de uma credencial simultaneamente?
-4. Credenciais possuem validade ou data de expiração?
-5. Quais áreas estarão disponíveis e quem pode cadastrá-las?
-6. O que deve acontecer com credenciais quando uma pessoa é inativada?
-7. Qual fuso horário deve ser utilizado na gravação e exibição dos eventos?
-8. Qual o volume esperado de pessoas, credenciais e eventos?
-9. Quais campos pessoais devem ser mascarados conforme o perfil?
-10. Quais operações devem ser registradas em auditoria além das tentativas de acesso?
+3. Quais áreas estarão disponíveis e quem pode cadastrá-las?
+4. Qual fuso horário deve ser utilizado na gravação e exibição dos eventos?
+5. Qual o volume esperado de pessoas, credenciais e eventos?
+6. Quais campos pessoais devem ser mascarados?
+7. Quais operações devem ser registradas em auditoria além das tentativas de acesso?
 
 **Tratamento para o portfólio:** os pontos em aberto serão registrados como dúvidas de requisito, e não tratados como regras confirmadas. As decisões adotadas em versões futuras do estudo de caso serão documentadas.
 
@@ -221,4 +231,4 @@ Com os requisitos e regras iniciais definidos, a próxima entrega será a análi
 
 | Versão | Descrição |
 |---|---|
-| 1.0 | Criação do escopo inicial, requisitos funcionais, critérios de aceitação e regras de negócio para o AccessControl Demo. |\n| 1.1 | Inclusão das decisões sobre quantidade de credenciais, inativação automática, expiração, intervalo entre tentativas e perfis de acesso. |
+| 1.0 | Criação do escopo inicial, requisitos funcionais, critérios de aceitação e regras de negócio para o AccessControl Demo. |\n| 1.1 | Inclusão das decisões sobre quantidade de credenciais, inativação automática, expiração, intervalo de 10 segundos e perfis de acesso. |\n| 1.2 | Detalhamento das permissões de Administrador e Operador e atualização dos pontos ainda pendentes de definição. |
