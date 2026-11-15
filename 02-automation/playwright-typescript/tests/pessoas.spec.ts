@@ -103,4 +103,35 @@ test.describe('Cadastro e consulta de pessoas', () => {
     await pessoasPage.expectPersonInList(person.cpf);
     await pessoasPage.expectPersonEmail(person.cpf, person.email);
   });
+
+  test('deve impedir o cadastro de duas pessoas ativas com o mesmo CPF', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const firstPerson = uniquePersonData();
+    const duplicatePerson = uniquePersonData();
+
+    duplicatePerson.cpf = firstPerson.cpf;
+
+    await pessoasPage.open();
+
+    // Cadastra a primeira pessoa.
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(firstPerson);
+    await pessoasPage.save();
+
+    await pessoasPage.expectPersonInList(firstPerson.cpf);
+
+    // Tenta cadastrar outra pessoa usando o CPF já associado a uma pessoa ativa.
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(duplicatePerson);
+    await pessoasPage.save();
+
+    await expect(pessoasPage.validationMessage).toHaveText(
+      'Já existe uma pessoa ativa cadastrada com este CPF.',
+    );
+
+    // A primeira pessoa deve permanecer cadastrada, sem duplicidade.
+    await expect(pessoasPage.personRow(firstPerson.cpf)).toHaveCount(1);
+    await pessoasPage.expectPersonEmail(firstPerson.cpf, firstPerson.email);
+  });
+
 });
