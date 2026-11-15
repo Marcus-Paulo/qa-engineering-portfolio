@@ -211,7 +211,7 @@ function PeoplePage({ session, onLogout }: { session: Session; onLogout: () => v
             <button data-testid="person-new" className="button button-primary" onClick={startNewPerson}>+ Nova pessoa</button>
           </div>
 
-          {feedback && <div className="notice success" role="status">{feedback}</div>}
+          {feedback && <div data-testid="person-success-message" className="notice success" role="status">{feedback}</div>}
 
           <section className="panel">
             <div className="panel-toolbar">
