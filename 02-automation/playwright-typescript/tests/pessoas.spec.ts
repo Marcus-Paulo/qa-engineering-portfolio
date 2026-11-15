@@ -109,6 +109,33 @@ test.describe('Cadastro e consulta de pessoas', () => {
     await pessoasPage.expectPersonEmail(person.cpf, updatedEmail);
   });
 
+  test('deve inativar uma pessoa e manter seu registro consultável', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(person);
+    await pessoasPage.save();
+
+    await pessoasPage.expectPersonInList(person.cpf);
+    await pessoasPage.editPerson(person.cpf);
+
+    await page.locator('#person-status').selectOption('Inativa');
+    await pessoasPage.save();
+
+    const personRow = pessoasPage.personRow(person.cpf);
+    await expect(personRow).toBeVisible();
+    await expect(personRow).toContainText('Inativa');
+    await expect(personRow).toContainText(person.name);
+    await expect(personRow).toContainText(person.email);
+
+    // A pessoa inativa continua disponível para consulta pelo CPF.
+    await pessoasPage.searchFor(person.cpf);
+    await expect(personRow).toBeVisible();
+    await expect(personRow).toContainText('Inativa');
+  });
+
   test('deve descartar alterações ao cancelar a edição de uma pessoa', async ({ page }) => {
     const pessoasPage = new PessoasPage(page);
     const person = uniquePersonData();
