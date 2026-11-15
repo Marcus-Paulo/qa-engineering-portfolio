@@ -43,6 +43,28 @@ test.describe('Cadastro e consulta de pessoas', () => {
     await expect(pessoasPage.emailInput).toHaveAttribute('required', '');
   });
 
+  test('deve impedir o cadastro com formato de e-mail inválido', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm({
+      ...person,
+      email: 'email-invalido',
+    });
+    await pessoasPage.save();
+
+    // A validação nativa do input type="email" deve impedir o envio do formulário.
+    const hasInvalidEmailFormat = await pessoasPage.emailInput.evaluate(
+      (element) => (element as HTMLInputElement).validity.typeMismatch,
+    );
+
+    expect(hasInvalidEmailFormat).toBe(true);
+    await expect(pessoasPage.emailInput).toBeFocused();
+    await expect(pessoasPage.personRow(person.cpf)).toHaveCount(0);
+  });
+
   test('deve pesquisar uma pessoa pelo nome', async ({ page }) => {
     const pessoasPage = new PessoasPage(page);
     const person = uniquePersonData();
