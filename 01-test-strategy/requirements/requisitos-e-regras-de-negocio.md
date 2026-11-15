@@ -113,7 +113,7 @@ O sistema deve registrar uma tentativa de acesso realizada com uma credencial.
 - O resultado deve indicar acesso autorizado ou negado.
 - O evento deve ser registrado mesmo quando o acesso for negado.
 - Uma credencial inexistente ou não associada deve gerar tentativa negada.
-- Após uma tentativa, a mesma credencial deve respeitar um intervalo de 10 segundos antes de uma nova tentativa.
+- Após a conclusão do processamento de qualquer tentativa de acesso, autorizada ou negada, a mesma credencial deve respeitar um intervalo de 10 segundos. Se houver nova tentativa durante esse intervalo, o sistema deve recusá-la e exibir uma mensagem orientando a aguardar o término do período.
 
 ### RF-08 — Consulta de eventos de acesso
 
@@ -140,7 +140,7 @@ O sistema deve permitir que Administradores e Operadores consultem o histórico 
 | RN-09 | O perfil Operador não pode gerenciar credenciais, alterar permissões de acesso nem gerenciar usuários do sistema. |
 | RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |
 | RN-11 | A credencial possui uma data de expiração e permanece válida até às 23h59 dessa data. Após esse limite, deve ser inativada automaticamente e não deve autorizar acesso. |
-| RN-12 | Após uma tentativa de acesso, a mesma credencial deve aguardar 10 segundos antes de realizar uma nova tentativa. |
+| RN-12 | Após a conclusão do processamento de qualquer tentativa de acesso, autorizada ou negada, a mesma credencial deve aguardar 10 segundos antes de realizar uma nova tentativa. Durante esse intervalo, novas tentativas com a mesma credencial devem ser recusadas e o sistema deve exibir uma mensagem orientando a aguardar. |
 
 ## 5. Matriz de decisão inicial — autorização de acesso
 
@@ -173,8 +173,9 @@ As respostas recebidas durante a análise de requisitos foram incorporadas ao es
 | Quantidade de credenciais por pessoa | Cada pessoa poderá possuir somente uma credencial associada. | Testar tentativa de associar uma segunda credencial à mesma pessoa. |
 | Inativação de pessoa | A credencial será inativada automaticamente quando a pessoa for inativada. | Validar a mudança automática de status e a negação de acesso posterior. |
 | Expiração de credencial | A credencial permanece válida até às 23h59 da data informada e depois é inativada automaticamente. | Testar antes, no limite e após a expiração, incluindo a mudança automática de status. |
-| Reativação após expiração | O Administrador poderá reativar uma credencial expirada. | Testar a permissão do Administrador e a restrição ao Operador. |
-| Intervalo entre tentativas | A mesma credencial deve aguardar 10 segundos após uma tentativa antes de tentar novamente. | Testar uma nova tentativa antes de completar 10 segundos e após o intervalo. |
+| Reativação após expiração | O Administrador poderá reativar uma credencial expirada somente informando uma nova data de expiração. | Testar a obrigatoriedade da nova data, sua validação e a restrição ao Operador. |
+| Substituição de credencial | Se a credencial anterior estiver inativada, a pessoa poderá receber uma nova credencial. | Testar a associação de nova credencial após a inativação da anterior e impedir que a pessoa mantenha duas credenciais associadas simultaneamente. |
+| Intervalo entre tentativas | O intervalo de 10 segundos começa após a conclusão do processamento da tentativa e também se aplica a tentativas negadas. Durante o intervalo, uma nova tentativa deve ser recusada com mensagem para aguardar. | Testar tentativas autorizadas e negadas, medir o início do intervalo após a conclusão do processamento, validar a mensagem durante os 10 segundos e permitir nova tentativa após o término. |
 | Perfis de usuário | Existem somente Administrador e Operador. Administrador possui acesso completo; Operador possui acesso restrito. | Testar permissões positivas e negativas de cada perfil. |
 
 ### 7.1 Permissões por perfil
@@ -200,8 +201,10 @@ O Administrador possui acesso completo ao sistema, inclusive às funcionalidades
 - Uma pessoa não pode ter mais de uma credencial associada.
 - A inativação da pessoa deve inativar automaticamente sua credencial.
 - A credencial permanece válida até às 23h59 da data de expiração e deve ser inativada automaticamente após esse limite.
-- O Administrador pode reativar credenciais expiradas; o Operador não possui essa permissão.
-- Após uma tentativa de acesso, a mesma credencial deve respeitar 10 segundos de intervalo antes de nova tentativa.
+- O Administrador pode reativar credenciais expiradas somente informando uma nova data de expiração futura; o Operador não possui essa permissão.
+- Uma pessoa poderá receber uma nova credencial quando a anterior estiver inativada, mantendo no máximo uma credencial associada por vez.
+- O intervalo de 10 segundos começa após a conclusão do processamento da tentativa de acesso e também é iniciado por tentativas negadas.
+- Durante o intervalo, novas tentativas com a mesma credencial devem ser recusadas e acompanhadas de mensagem orientando a aguardar.
 - O Administrador possui acesso completo ao sistema.
 - O Operador pode consultar pessoas, credenciais e eventos, além de cadastrar e editar pessoas. Não pode associar, bloquear, desbloquear ou reativar credenciais, alterar permissões por área ou gerenciar usuários.
 
@@ -209,17 +212,14 @@ O Administrador possui acesso completo ao sistema, inclusive às funcionalidades
 
 Os pontos abaixo ainda não foram especificados e não devem ser tratados como regras confirmadas:
 
-1. Quando uma credencial expira e é reativada pelo Administrador, a data de expiração deve ser atualizada para uma data futura antes da reativação?
-2. Se uma credencial for inativada ou substituída, a pessoa poderá receber uma nova credencial ou a regra de uma credencial por pessoa impede qualquer associação futura?
-3. O intervalo de 10 segundos deve ser contado a partir do início ou da conclusão do processamento da tentativa? Durante o intervalo, uma nova tentativa deve ser recusada com mensagem específica ou apenas ignorada?
-4. O intervalo de 10 segundos deve ser aplicado também a tentativas negadas?
-5. Quais campos, além dos listados, são obrigatórios no cadastro de pessoa?
-6. O CPF pode ser alterado após o cadastro?
-7. Quais áreas estarão disponíveis e quem pode cadastrá-las?
-8. Qual fuso horário deve ser utilizado na gravação e exibição dos eventos?
-9. Qual o volume esperado de pessoas, credenciais e eventos?
-10. Quais campos pessoais devem ser mascarados?
-11. Quais operações devem ser registradas em auditoria além das tentativas de acesso?
+1. Quais campos, além dos listados, são obrigatórios no cadastro de pessoa?
+2. O CPF pode ser alterado após o cadastro?
+3. Quais áreas estarão disponíveis e quem pode cadastrá-las?
+4. Qual fuso horário deve ser utilizado na gravação e exibição dos eventos?
+5. Qual o volume esperado de pessoas, credenciais e eventos?
+6. Quais campos pessoais devem ser mascarados?
+7. Quais operações devem ser registradas em auditoria além das tentativas de acesso?
+8. Qual deve ser o texto exato da mensagem apresentada quando uma tentativa for recusada durante o intervalo de 10 segundos?
 
 **Tratamento para o portfólio:** os pontos em aberto serão registrados como dúvidas de requisito, e não tratados como regras confirmadas. As decisões adotadas em versões futuras serão documentadas.
 
@@ -241,3 +241,4 @@ Com os requisitos e regras iniciais definidos, a próxima entrega será a análi
 | 1.1 | Inclusão das decisões sobre quantidade de credenciais, inativação automática, expiração, intervalo de 10 segundos e perfis de acesso. |
 | 1.2 | Detalhamento das permissões de Administrador e Operador e atualização dos pontos ainda pendentes de definição. |
 | 1.3 | Confirmação do intervalo de 10 segundos por credencial, validade até 23h59 da data de expiração, reativação pelo Administrador e proibição de gerenciamento de credenciais pelo Operador. |
+| 1.4 | Definição de nova data obrigatória na reativação, possibilidade de substituir credencial inativada e detalhamento do intervalo de 10 segundos, inclusive para tentativas negadas e mensagem de espera. |
