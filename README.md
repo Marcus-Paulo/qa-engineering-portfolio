@@ -24,7 +24,7 @@ Sou Analista de Testes de Software Pleno, com atuação em qualidade de software
 | [03 — Testes de API](./03-api-testing/) | Validação de contratos, status HTTP, regras, dados e cenários negativos |
 | [04 — Testes de performance](./04-performance-testing/) | Scripts k6, carga, stress, thresholds e análise de métricas |
 | [05 — Documentação de bugs](./05-bug-documentation/) | Relatos reproduzíveis, evidências, impacto, severidade e prioridade |
-| [06 — Projeto integrado de QA](./06-end-to-end-project/) | Estudo de caso ponta a ponta reunindo estratégia, testes, automação, API e performance |
+| [06 — Projeto integrado de QA](./06-end-to-end-project/) | Estudo de caso ponta a ponta reunindo estratégia, aplicação de laboratório, automação, API e performance |
 
 ## Como navegar
 
