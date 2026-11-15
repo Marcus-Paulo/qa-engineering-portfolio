@@ -1,40 +1,22 @@
 # 06 — Projeto integrado de QA
 
-## Objetivo
-Reunir em um único estudo de caso o ciclo de qualidade de uma aplicação fictícia, da análise de requisitos à apresentação dos resultados.
+## AccessControl Demo
 
-## Cenário
-Sistema fictício de gestão de pessoas e controle de acesso. O domínio serve apenas como contexto didático; não representa produto ou implementação de qualquer empresa.
+Estudo de caso fictício de uma aplicação web para gestão de pessoas e controle de acesso.
 
-## Etapas planejadas
-1. Definir escopo, requisitos e critérios de aceitação;
-2. Identificar riscos e elaborar a estratégia;
-3. Criar casos de teste e cenários BDD;
-4. Executar testes exploratórios e registrar defeitos;
-5. Automatizar fluxos selecionados de interface;
-6. Validar endpoints por meio de testes de API;
-7. Planejar e executar um teste de performance;
-8. Consolidar evidências, resultados e recomendações.
+A aplicação de laboratório está em [accesscontrol-demo-app](./accesscontrol-demo-app/README.md). A estratégia e os requisitos estão documentados em [01 — Estratégia e design de testes](../01-test-strategy/README.md), e os testes automatizados iniciais em [Playwright + TypeScript](../02-automation/playwright-typescript/README.md).
 
-## Critérios de conclusão
-- Requisitos ligados a cenários de teste;
-- Execução documentada com evidências;
-- Defeitos descritos de forma reproduzível;
-- Scripts com instruções de execução;
-- Resultados de performance obtidos em execução real;
-- Relatório final com riscos e limitações.
+## Evolução planejada
 
-## Estrutura prevista
-```text
-06-end-to-end-project/
-├── README.md
-├── documentation/
-├── test-cases/
-├── exploratory-testing/
-├── automation/
-├── api/
-├── performance/
-└── final-report/
-```
+- [x] Definição inicial do escopo e regras de negócio;
+- [x] Matriz de rastreabilidade e casos de teste;
+- [x] Estrutura inicial de automação Playwright;
+- [x] Aplicação web local para cadastro e consulta de pessoas;
+- [ ] Executar e validar a suíte E2E;
+- [ ] Implementar credenciais, permissões e eventos;
+- [ ] Implementar API e persistência;
+- [ ] Criar testes de API;
+- [ ] Criar testes de performance com k6;
+- [ ] Consolidar evidências e relatório final.
 
-**Status:** projeto definido; implementação será feita em etapas.
+**Status:** MVP de interface em construção. A aplicação é um protótipo local e ainda não cobre todos os requisitos documentados.
