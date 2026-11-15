@@ -1,0 +1,20 @@
+{
+  "name": "accesscontrol-demo-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Estudo de automação E2E com Playwright e TypeScript para o AccessControl Demo",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:report": "playwright show-report",
+    "test:debug": "playwright test --debug",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@types/node": "^24.0.0",
+    "dotenv": "^16.4.7",
+    "typescript": "^5.9.0"
+  }
+}
