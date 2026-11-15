@@ -109,6 +109,32 @@ test.describe('Cadastro e consulta de pessoas', () => {
     await pessoasPage.expectPersonEmail(person.cpf, updatedEmail);
   });
 
+  test('deve descartar alterações ao cancelar a edição de uma pessoa', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+    const changedName = `Alterado ${person.name}`;
+    const changedEmail = `alterado.${person.email}`;
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(person);
+    await pessoasPage.save();
+
+    await pessoasPage.expectPersonInList(person.cpf);
+    await pessoasPage.editPerson(person.cpf);
+
+    await pessoasPage.nameInput.fill(changedName);
+    await pessoasPage.emailInput.fill(changedEmail);
+
+    // Cancelar deve fechar o formulário sem persistir as alterações realizadas.
+    await page.getByRole('button', { name: 'Cancelar' }).click();
+
+    await expect(pessoasPage.personRow(person.cpf)).toContainText(person.name);
+    await expect(pessoasPage.personRow(person.cpf)).toContainText(person.email);
+    await expect(pessoasPage.personRow(person.cpf)).not.toContainText(changedName);
+    await expect(pessoasPage.personRow(person.cpf)).not.toContainText(changedEmail);
+  });
+
   test('deve manter os dados da pessoa após atualizar a página', async ({ page }) => {
     const pessoasPage = new PessoasPage(page);
     const person = uniquePersonData();
