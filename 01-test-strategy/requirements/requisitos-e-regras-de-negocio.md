@@ -128,14 +128,14 @@ O sistema deve permitir consultar o histórico de eventos de acesso.
 |---|---|
 | RN-01 | O CPF deve ser único entre os cadastros de pessoas. |
 | RN-02 | Somente pessoas com status ativo podem receber novas credenciais. |
-| RN-03 | Uma credencial só pode estar associada a uma pessoa por vez. |
-| RN-04 | Credenciais bloqueadas não autorizam tentativas de acesso. |
-| RN-05 | Pessoas inativas não podem ter acesso autorizado, independentemente das permissões por área. |
-| RN-06 | O acesso somente será autorizado quando a pessoa estiver ativa, a credencial estiver válida e desbloqueada e houver permissão para a área solicitada. |
+| RN-03 | Cada pessoa pode possuir somente uma credencial ativa associada, e uma credencial não pode estar associada a mais de uma pessoa. |
+| RN-04 | Credenciais bloqueadas ou inativadas não autorizam tentativas de acesso. |
+| RN-05 | Ao inativar uma pessoa, sua credencial deve ser inativada automaticamente. Pessoas inativas não podem ter acesso autorizado, independentemente das permissões por área. |
+| RN-06 | O acesso somente será autorizado quando a pessoa estiver ativa, a credencial estiver dentro do prazo de validade e desbloqueada e houver permissão para a área solicitada. |
 | RN-07 | Toda tentativa de acesso deve gerar um evento, seja ela autorizada ou negada. |
 | RN-08 | A consulta de eventos deve respeitar as permissões do perfil do usuário autenticado. |
 | RN-09 | Usuários com perfil Consulta não podem criar, editar, bloquear ou desbloquear registros. |
-| RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |
+| RN-10 | Alterações de credencial e permissões devem produzir efeito nas próximas tentativas de acesso. |\n| RN-11 | Uma credencial possui data de expiração; após essa data, não deve autorizar acesso. |\n| RN-12 | Após uma tentativa de acesso, deve existir um intervalo de espera antes de uma nova tentativa no mesmo contexto de acesso. A duração e as condições desse intervalo ainda precisam ser definidas. |
 
 ## 5. Matriz de decisão inicial — autorização de acesso
 
@@ -161,7 +161,36 @@ A matriz representa as regras definidas para este estudo de caso. Cenários adic
 | RNF-04 | Privacidade | Dados pessoais exibidos e armazenados devem ser tratados de forma compatível com a finalidade do sistema. |
 | RNF-05 | Desempenho | O tempo de resposta esperado deverá ser definido antes dos testes de performance, considerando ambiente e carga de referência. |
 
-## 7. Pontos em aberto e decisões necessárias
+## 7. Decisões de negócio complementares
+
+As respostas recebidas para as dúvidas iniciais foram incorporadas ao escopo:
+
+| Tema | Decisão confirmada | Impacto para QA |
+|---|---|---|
+| Quantidade de credenciais por pessoa | Cada pessoa poderá possuir somente uma credencial. | Testar tentativa de associar uma segunda credencial à mesma pessoa. |
+| Inativação de pessoa | A credencial será inativada automaticamente quando a pessoa for inativada. | Validar a mudança automática de status e a negação de acesso posterior. |
+| Expiração de credencial | Credenciais terão data de expiração. | Testar antes, no momento e depois da expiração. |
+| Tentativas simultâneas | Deve haver um tempo de espera antes de tentar novamente. | Testar tentativas repetidas dentro e após o intervalo; a duração ainda precisa ser especificada. |
+| Perfis de usuário | Administrador terá acesso a todas as funcionalidades; Operador terá acesso mais restrito. | Testar autorização e restrição por funcionalidade; a matriz detalhada de permissões ainda precisa ser definida. |
+
+### 7.1 Regras adicionais derivadas das decisões
+
+- Uma pessoa não pode ter mais de uma credencial associada.
+- A inativação da pessoa deve inativar automaticamente sua credencial.
+- Credencial expirada não deve permitir acesso.
+- Uma nova tentativa de acesso deve respeitar o intervalo de espera configurado.
+- O Administrador possui acesso completo às funcionalidades.
+- O Operador possui acesso limitado às funcionalidades, conforme matriz de permissões a definir.
+
+### 7.2 Pontos que ainda precisam de definição
+
+1. Qual é o intervalo de espera entre tentativas de acesso? O intervalo é aplicado por pessoa, credencial, dispositivo ou área?
+2. A data de expiração inclui o dia inteiro ou a credencial expira exatamente no horário registrado?
+3. O que o sistema deve fazer quando uma credencial é inativada automaticamente: permitir reativação manual ou exigir uma nova credencial?
+4. Quais ações específicas o perfil Operador pode executar? Por exemplo: consultar pessoas, cadastrar pessoas, editar dados, associar credenciais, bloquear credenciais, alterar permissões e consultar eventos.
+5. Existe algum perfil além de Administrador, Operador e Consulta? A definição anterior do perfil Consulta permanece pendente de confirmação.
+
+## 8. Pontos em aberto e decisões necessárias
 
 Os pontos abaixo não foram especificados e precisam ser definidos antes de considerar os requisitos completos:
 
@@ -178,7 +207,7 @@ Os pontos abaixo não foram especificados e precisam ser definidos antes de cons
 
 **Tratamento para o portfólio:** os pontos em aberto serão registrados como dúvidas de requisito, e não tratados como regras confirmadas. As decisões adotadas em versões futuras do estudo de caso serão documentadas.
 
-## 8. Próxima atividade de QA
+## 9. Próxima atividade de QA
 
 Com os requisitos e regras iniciais definidos, a próxima entrega será a análise de cobertura:
 
@@ -188,8 +217,8 @@ Com os requisitos e regras iniciais definidos, a próxima entrega será a análi
 - Preparar os casos de teste em formato rastreável;
 - Registrar lacunas que dependem de decisão de produto.
 
-## 9. Histórico do documento
+## 10. Histórico do documento
 
 | Versão | Descrição |
 |---|---|
-| 1.0 | Criação do escopo inicial, requisitos funcionais, critérios de aceitação e regras de negócio para o AccessControl Demo. |
+| 1.0 | Criação do escopo inicial, requisitos funcionais, critérios de aceitação e regras de negócio para o AccessControl Demo. |\n| 1.1 | Inclusão das decisões sobre quantidade de credenciais, inativação automática, expiração, intervalo entre tentativas e perfis de acesso. |
