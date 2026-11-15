@@ -36,6 +36,10 @@ test.describe('Cadastro de pessoas', () => {
     await pessoasPage.startNewPerson();
     await pessoasPage.save();
 
-    await expect(pessoasPage.validationMessage).toBeVisible();
+    // O navegador bloqueia o submit nativamente e foca o primeiro campo obrigatório inválido.
+    await expect(pessoasPage.nameInput).toBeFocused();
+    await expect(pessoasPage.nameInput).toHaveAttribute('required', '');
+    await expect(pessoasPage.cpfInput).toHaveAttribute('required', '');
+    await expect(pessoasPage.emailInput).toHaveAttribute('required', '');
   });
 });
