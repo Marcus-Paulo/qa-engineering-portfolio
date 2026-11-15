@@ -3,7 +3,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { PessoasPage } from '../pages/PessoasPage';
 import { uniquePersonData } from '../utils/testData';
 
-test.describe('Cadastro de pessoas', () => {
+test.describe('Cadastro e consulta de pessoas', () => {
   test.beforeEach(async ({ page }) => {
     const username = process.env.E2E_USER;
     const password = process.env.E2E_PASSWORD;
@@ -41,5 +41,66 @@ test.describe('Cadastro de pessoas', () => {
     await expect(pessoasPage.nameInput).toHaveAttribute('required', '');
     await expect(pessoasPage.cpfInput).toHaveAttribute('required', '');
     await expect(pessoasPage.emailInput).toHaveAttribute('required', '');
+  });
+
+  test('deve pesquisar uma pessoa pelo nome', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(person);
+    await pessoasPage.save();
+
+    await pessoasPage.searchFor(person.name);
+    await pessoasPage.expectPersonInList(person.cpf);
+  });
+
+  test('deve pesquisar uma pessoa pelo CPF', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(person);
+    await pessoasPage.save();
+
+    await pessoasPage.searchFor(person.cpf);
+    await pessoasPage.expectPersonInList(person.cpf);
+  });
+
+  test('deve editar o e-mail de uma pessoa cadastrada', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+    const updatedEmail = `atualizado.${person.email}`;
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(person);
+    await pessoasPage.save();
+
+    await pessoasPage.editPerson(person.cpf);
+    await pessoasPage.emailInput.fill(updatedEmail);
+    await pessoasPage.save();
+
+    await expect(pessoasPage.successMessage).toBeVisible();
+    await pessoasPage.expectPersonEmail(person.cpf, updatedEmail);
+  });
+
+  test('deve manter os dados da pessoa após atualizar a página', async ({ page }) => {
+    const pessoasPage = new PessoasPage(page);
+    const person = uniquePersonData();
+
+    await pessoasPage.open();
+    await pessoasPage.startNewPerson();
+    await pessoasPage.fillForm(person);
+    await pessoasPage.save();
+
+    await pessoasPage.expectPersonInList(person.cpf);
+
+    await page.reload();
+
+    await pessoasPage.expectPersonInList(person.cpf);
+    await pessoasPage.expectPersonEmail(person.cpf, person.email);
   });
 });
