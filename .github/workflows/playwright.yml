@@ -31,10 +31,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            02-automation/playwright-typescript/package-lock.json
-            06-end-to-end-project/accesscontrol-demo-app/package-lock.json
 
       - name: Install demo application dependencies
         working-directory: 06-end-to-end-project/accesscontrol-demo-app
