@@ -1,0 +1,64 @@
+name: Playwright E2E
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "02-automation/playwright-typescript/**"
+      - "06-end-to-end-project/accesscontrol-demo-app/**"
+      - ".github/workflows/playwright.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "02-automation/playwright-typescript/**"
+      - "06-end-to-end-project/accesscontrol-demo-app/**"
+      - ".github/workflows/playwright.yml"
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: http://127.0.0.1:5173
+      E2E_USER: admin
+      E2E_PASSWORD: Admin123!
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            02-automation/playwright-typescript/package-lock.json
+            06-end-to-end-project/accesscontrol-demo-app/package-lock.json
+
+      - name: Install demo application dependencies
+        working-directory: 06-end-to-end-project/accesscontrol-demo-app
+        run: npm install
+
+      - name: Install Playwright dependencies
+        working-directory: 02-automation/playwright-typescript
+        run: npm install
+
+      - name: Install Chromium
+        working-directory: 02-automation/playwright-typescript
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        working-directory: 02-automation/playwright-typescript
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            02-automation/playwright-typescript/playwright-report/
+            02-automation/playwright-typescript/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
