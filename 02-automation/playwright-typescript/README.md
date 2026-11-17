@@ -2,9 +2,17 @@
 
 ## Objetivo
 
-Demonstrar automação de testes end-to-end para o produto fictício AccessControl Demo, utilizando Playwright, TypeScript e Page Object Model.
+Demonstrar automação de testes end-to-end para a aplicação fictícia AccessControl Demo, utilizando Playwright Test, TypeScript e Page Object Model.
 
-> **Importante:** este repositório contém a estrutura inicial e os testes preparados. A aplicação AccessControl Demo ainda não está implementada/disponibilizada neste projeto. Portanto, os testes ainda não foram executados e seus seletores representam o contrato de interface esperado para a futura aplicação.
+A aplicação de laboratório e a suíte de automação estão neste repositório, em diretórios separados. A suíte utiliza a aplicação local como alvo de testes.
+
+## Tecnologias
+
+- Playwright Test;
+- TypeScript;
+- Node.js e npm;
+- dotenv para configuração local;
+- React + Vite na aplicação de demonstração.
 
 ## Estrutura
 
@@ -21,135 +29,118 @@ playwright-typescript/
 ├── .gitignore
 ├── package.json
 ├── playwright.config.ts
-├── tsconfig.json
-└── README.md
+└── tsconfig.json
 ```
-
-## Tecnologias
-
-- Playwright Test;
-- TypeScript;
-- Node.js;
-- dotenv para configuração local.
 
 ## Pré-requisitos
 
-- Node.js em versão LTS;
+- Node.js LTS;
 - npm;
-- Aplicação AccessControl Demo disponível em ambiente de teste;
-- Usuário de teste com perfil Administrador.
+- Git.
 
 ## Configuração local
 
-1. Acesse este diretório:
+Na raiz do repositório, instale as dependências da aplicação e da automação:
 
-```bash
-cd 02-automation/playwright-typescript
-```
+```powershell
+cd 06-end-to-end-project/accesscontrol-demo-app
+npm install
 
-2. Instale as dependências:
-
-```bash
+cd ../../../02-automation/playwright-typescript
 npm install
 npx playwright install chromium
 ```
 
-3. Copie o arquivo de exemplo para `.env`:
-
-Windows PowerShell:
+Crie o arquivo local `.env` a partir do exemplo:
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Linux/macOS:
-
-```bash
-cp .env.example .env
-```
-
-4. Configure no arquivo `.env` a URL da aplicação e as credenciais de teste:
+O exemplo já aponta para a aplicação Vite em `http://127.0.0.1:5173`. Preencha as credenciais demonstrativas locais:
 
 ```env
-BASE_URL=http://127.0.0.1:3000
-E2E_USER=usuario_de_teste
-E2E_PASSWORD=senha_de_teste
+BASE_URL=http://127.0.0.1:5173
+E2E_USER=admin
+E2E_PASSWORD=Admin123!
 ```
 
-Não compartilhe o arquivo `.env` nem credenciais reais. O arquivo está incluído no `.gitignore`.
-
-## Cenários preparados
-
-| Cenário | Objetivo |
-|---|---|
-| Cadastro com dados válidos | Validar gravação e exibição da pessoa cadastrada |
-| Cadastro sem campos obrigatórios | Validar bloqueio do envio e feedback de validação |
-
-Os dados de pessoa são gerados dinamicamente para reduzir colisões entre execuções. O CPF é sintético e não deve ser utilizado como dado real.
-
-## Contrato de seletores esperado
-
-Para que os exemplos possam interagir com a interface, a aplicação deverá disponibilizar seletores estáveis:
-
-| Elemento | Seletor esperado |
-|---|---|
-| Usuário no login | `data-testid="login-username"` |
-| Senha no login | `data-testid="login-password"` |
-| Botão entrar | `data-testid="login-submit"` |
-| Botão nova pessoa | `data-testid="person-new"` |
-| Campo nome | `data-testid="person-name"` |
-| Campo CPF | `data-testid="person-cpf"` |
-| Campo e-mail | `data-testid="person-email"` |
-| Botão salvar | `data-testid="person-save"` |
-| Mensagem de sucesso | `data-testid="person-success-message"` |
-| Mensagem de validação | `data-testid="person-validation-message"` |
-| Linha da pessoa | `data-testid="person-row-{CPF}"` |
-
-Também é esperado que o login bem-sucedido direcione para `/pessoas`, e que a tela de cadastro esteja acessível em `/pessoas`. Esses caminhos devem ser ajustados caso a aplicação adote rotas diferentes.
+Essas credenciais são exclusivas do protótipo local. Não utilize dados pessoais reais. O arquivo `.env` não deve ser versionado.
 
 ## Execução
 
-Executar todos os testes:
+A configuração do Playwright inicia automaticamente o servidor Vite da aplicação quando necessário. Portanto, não é preciso abrir um terminal separado para iniciar a aplicação.
 
-```bash
-npm test
+Executar toda a suíte:
+
+```powershell
+npx playwright test
 ```
 
 Executar com navegador visível:
 
-```bash
-npm run test:headed
+```powershell
+npx playwright test --headed
 ```
 
-Abrir relatório HTML:
+Abrir o relatório HTML:
 
-```bash
-npm run test:report
+```powershell
+npx playwright show-report
 ```
 
-Verificar tipos TypeScript:
+Verificar os tipos TypeScript:
 
-```bash
+```powershell
 npm run typecheck
 ```
 
-Os testes de cadastro são ignorados automaticamente quando `E2E_USER` ou `E2E_PASSWORD` não estão configurados. Isso evita uma tentativa de autenticação sem credenciais, mas não substitui a disponibilidade da aplicação.
+## Cenários automatizados — módulo Pessoas
+
+| # | Cenário | Cobertura |
+|---:|---|---|
+| 1 | Cadastrar pessoa com dados válidos | Fluxo positivo |
+| 2 | Impedir cadastro sem campos obrigatórios | Validação negativa |
+| 3 | Impedir cadastro com e-mail inválido | Validação negativa |
+| 4 | Pesquisar pessoa pelo nome | Consulta |
+| 5 | Pesquisar pessoa pelo CPF | Consulta |
+| 6 | Editar e-mail de pessoa cadastrada | Edição |
+| 7 | Inativar pessoa e manter registro consultável | Estado e consulta |
+| 8 | Cancelar edição sem persistir alterações | Cancelamento |
+| 9 | Manter dados após atualizar a página | Persistência local |
+| 10 | Impedir CPF duplicado entre pessoas ativas | Regra de negócio |
+
+Os dados de teste são sintéticos e gerados dinamicamente. A suíte utiliza o perfil Administrador da aplicação de demonstração.
 
 ## Boas práticas aplicadas
 
-- Page Objects para separar interação com a interface da lógica dos testes;
-- Seletores por `data-testid` para reduzir dependência de CSS e texto visual;
-- Dados sintéticos e dinâmicos;
-- Credenciais em variáveis de ambiente;
+- Page Objects para separar interação com a interface e lógica dos testes;
+- Seletores estáveis por `data-testid` quando disponíveis;
+- Dados de teste dinâmicos;
+- Credenciais configuradas por variáveis de ambiente;
+- Execução paralela;
 - Screenshot, vídeo e trace em caso de falha;
-- Asserções de resultado após a ação, e não apenas execução de cliques.
+- Asserções de comportamento e resultado.
+
+## Resultado de referência
+
+A suíte de 10 cenários foi executada localmente pelo autor, com os 10 testes reportados como aprovados. A execução deve ser repetida no ambiente de quem clonar o repositório; não há garantia de resultado em outros ambientes.
+
+## Limitações conhecidas
+
+- A aplicação é um protótipo front-end, sem backend ou banco de dados;
+- Autenticação é simulada no navegador e não oferece segurança de produção;
+- Persistência utiliza `localStorage`;
+- Módulos de credenciais, permissões por área e eventos ainda não foram implementados;
+- Reutilização de CPF após inativação ainda é uma regra de negócio a confirmar, não um requisito estabelecido;
+- A validação atual de CPF verifica quantidade de dígitos, não os dígitos verificadores.
 
 ## Próximas evoluções
 
-- Implementar e disponibilizar a aplicação de demonstração;
-- Ajustar os seletores e rotas ao DOM real;
-- Executar os testes e registrar resultados reais;
-- Adicionar cenários de edição, CPF duplicado e tratamento de falha;
-- Integrar execução contínua (CI).
+1. Automatizar a execução no GitHub Actions;
+2. Confirmar regras de negócio pendentes antes de implementá-las;
+3. Evoluir os módulos de credenciais e controle de acesso;
+4. Separar testes de API quando houver uma API real;
+5. Desenvolver um estudo de performance quando houver backend e endpoints adequados.
 
-**Status:** estrutura inicial criada; testes ainda não executados contra uma aplicação real.
+**Status:** módulo Pessoas automatizado com 10 cenários; próximo foco é integração contínua e evolução incremental do laboratório.
