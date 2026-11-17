@@ -17,7 +17,7 @@ Projeto E2E da aplicação fictícia AccessControl Demo. A suíte cobre cadastro
 
 Consulte [Playwright + TypeScript](./playwright-typescript/README.md) para configuração, cenários, comandos de execução e limitações conhecidas.
 
-**Status:** módulo Pessoas implementado com 10 cenários automatizados e execução local reportada como aprovada. Próxima evolução: integração contínua e ampliação de cobertura.
+**Status:** módulo Pessoas implementado com 10 cenários automatizados e execução local reportada como aprovada. Próxima evolução: validar a primeira execução do workflow de integração contínua e ampliar a cobertura.
 
 ### Robot Framework + Selenium
 
