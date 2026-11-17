@@ -1,0 +1,16 @@
+﻿# Dependências
+node_modules/
+**/node_modules/
+
+# Arquivos de ambiente
+.env
+.env.*
+!.env.example
+
+# Builds
+dist/
+coverage/
+
+# Relatórios de testes
+playwright-report/
+test-results/
