@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Apresentar exemplos de automação organizados, legíveis e reproduzíveis, demonstrando seleção de cenários, estrutura de código e análise dos resultados.
+Apresentar projetos de automação com objetivos distintos, código organizado, execução reproduzível e análise de resultados.
 
 ## Tecnologias
 
@@ -13,17 +13,17 @@ Apresentar exemplos de automação organizados, legíveis e reproduzíveis, demo
 
 ### Playwright + TypeScript
 
-A estrutura inicial do projeto foi criada para o AccessControl Demo, incluindo configuração, Page Objects, geração de dados sintéticos e cenários de cadastro de pessoas.
+Projeto E2E da aplicação fictícia AccessControl Demo. A suíte cobre cadastro, validações, pesquisa, edição, inativação e persistência do módulo Pessoas.
 
-Consulte [Playwright + TypeScript](./playwright-typescript/README.md) para pré-requisitos, configuração, contrato de seletores e comandos.
+Consulte [Playwright + TypeScript](./playwright-typescript/README.md) para configuração, cenários, comandos de execução e limitações conhecidas.
 
-**Status:** código inicial preparado; aguarda aplicação disponível para execução e validação.
+**Status:** módulo Pessoas implementado com 10 cenários automatizados e execução local reportada como aprovada. Próxima evolução: integração contínua e ampliação de cobertura.
 
 ### Robot Framework + Selenium
 
-Estrutura planejada para demonstrar automação de fluxos web com Robot Framework e Selenium.
+Projeto independente para demonstrar automação de interface com Robot Framework e SeleniumLibrary. Não replica a suíte Playwright; terá foco em uma demonstração separada de keywords, recursos reutilizáveis e relatórios.
 
-**Status:** planejamento/documentação inicial.
+**Status:** planejamento/documentação inicial; scripts executáveis ainda serão desenvolvidos.
 
 ## Critérios de qualidade
 
