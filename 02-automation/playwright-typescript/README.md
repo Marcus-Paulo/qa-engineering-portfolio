@@ -137,7 +137,7 @@ A suíte de 10 cenários foi executada localmente pelo autor, com os 10 testes r
 
 ## Próximas evoluções
 
-1. Automatizar a execução no GitHub Actions;
+1. Validar a primeira execução do workflow no GitHub Actions e corrigir eventuais falhas;
 2. Confirmar regras de negócio pendentes antes de implementá-las;
 3. Evoluir os módulos de credenciais e controle de acesso;
 4. Separar testes de API quando houver uma API real;
