@@ -12,7 +12,7 @@ export class LoginPage {
   }
 
   async open(): Promise<void> {
-    await this.page.goto('/login');
+    await this.page.goto('/');
   }
 
   async signIn(username: string, password: string): Promise<void> {
